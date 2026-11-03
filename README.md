@@ -115,6 +115,16 @@ el código debe llegar al correo del usuario.
 Con `MAIL_MODE=console` (valor por defecto) no se envía nada: el correo completo,
 con el código, se imprime en la consola del servicio. Sirve para desarrollar sin credenciales.
 
+## Velocidad
+
+Gmail tarda normalmente 1–3 s por correo. El servicio ya evita dos demoras típicas en
+Windows (búsqueda DNS del nombre del equipo e intento por IPv6). La consola muestra
+cuánto tardó cada envío: `Código login_2fa entregado a ... en 1840 ms`.
+
+Si aun así es lento, `MAIL_ASYNC=true` hace que el servicio responda de inmediato y
+envíe el correo en segundo plano. Desventaja: si Gmail falla, Sportixcore no se entera
+(solo queda en el log de este servicio).
+
 ## Pruebas
 
 ```powershell

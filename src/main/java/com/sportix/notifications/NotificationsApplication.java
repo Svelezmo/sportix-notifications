@@ -17,6 +17,11 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 public class NotificationsApplication {
 
     public static void main(String[] args) {
+        // Si la red anuncia IPv6 pero no lo enruta bien, Java intenta primero
+        // IPv6 hacia smtp.gmail.com y espera el timeout antes de usar IPv4.
+        if (System.getProperty("java.net.preferIPv4Stack") == null) {
+            System.setProperty("java.net.preferIPv4Stack", "true");
+        }
         SpringApplication.run(NotificationsApplication.class, args);
     }
 }

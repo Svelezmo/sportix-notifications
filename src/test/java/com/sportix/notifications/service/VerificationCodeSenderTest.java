@@ -64,6 +64,23 @@ class VerificationCodeSenderTest {
     }
 
     @Test
+    @DisplayName("modo asíncrono: responde 'queued' sin esperar y el correo sale después")
+    void asyncMode() throws Exception {
+        java.util.concurrent.CountDownLatch sent = new java.util.concurrent.CountDownLatch(1);
+        when(gateway.send(any())).thenAnswer(invocation -> { sent.countDown(); return "id"; });
+        var properties = new com.sportix.notifications.config.NotificationProperties("k",
+                new com.sportix.notifications.config.NotificationProperties.Mail("smtp", "Sportix", true));
+        VerificationCodeSender async = new VerificationCodeSender(new VerificationEmailTemplate(), gateway, properties);
+
+        SendCodeResponse response = async.send(new SendCodeRequest("a@b.co", "123456", 5, "r", null));
+
+        assertThat(response.status()).isEqualTo("ok");
+        assertThat(response.messageId()).isEqualTo("queued");
+        assertThat(sent.await(2, java.util.concurrent.TimeUnit.SECONDS)).isTrue();
+        async.shutdown();
+    }
+
+    @Test
     @DisplayName("los logs muestran el correo enmascarado")
     void masksEmail() {
         assertThat(VerificationCodeSender.mask("ana.gomez@mail.com")).isEqualTo("a********@mail.com");
