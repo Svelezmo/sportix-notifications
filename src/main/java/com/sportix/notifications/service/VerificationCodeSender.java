@@ -32,10 +32,14 @@ public class VerificationCodeSender {
 
     public SendCodeResponse send(SendCodeRequest request) {
         EmailMessage message = template.build(request.to(), request.code(), request.ttlMinutes(), request.purposeOrDefault());
+        long start = System.nanoTime();
         String messageId = mailGateway.send(message);
+        long millis = (System.nanoTime() - start) / 1_000_000;
 
-        log.info("Código {} entregado a {} (request_id={}, message_id={})",
-                request.purposeOrDefault().getCode(), mask(request.to()), request.requestId(), messageId);
+        // Gmail suele tardar 1–5 s por envío (TLS + autenticación); el tiempo
+        // ayuda a ajustar NOTIFICATION_TIMEOUT_SECONDS en Sportixcore.
+        log.info("Código {} entregado a {} en {} ms (request_id={}, message_id={})",
+                request.purposeOrDefault().getCode(), mask(request.to()), millis, request.requestId(), messageId);
 
         return SendCodeResponse.ok(messageId, mailGateway.isDryRun(), request.requestId());
     }
