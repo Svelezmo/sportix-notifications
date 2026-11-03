@@ -1,0 +1,9 @@
+target/
+.idea/
+*.iml
+.vscode/
+
+# Secretos: la contraseña de aplicación de Gmail y la API key van en el .env
+.env
+.env.*
+!.env.example
